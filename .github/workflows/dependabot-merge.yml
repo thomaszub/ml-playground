@@ -11,4 +11,4 @@ jobs:
         with:
           target: minor
           command: merge --squash
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.DEPENDABOT_AUTOMERGE_TOKEN }}
