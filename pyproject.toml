@@ -12,7 +12,7 @@ pandas = "^1.4.0"
 scikit-learn = "^1.0"
 
 [tool.poetry.dev-dependencies]
-jupyterlab = "^3.2.8"
+jupyterlab = "^3.2.9"
 matplotlib = "^3.5.1"
 black = "22.1.0"
 
