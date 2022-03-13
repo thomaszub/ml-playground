@@ -13,7 +13,7 @@ scikit-learn = "^1.0"
 tqdm = "^4.63.0"
 
 [tool.poetry.dev-dependencies]
-jupyterlab = "^3.2.9"
+jupyterlab = "^3.3.1"
 matplotlib = "^3.5.1"
 black = "22.1.0"
 ipywidgets = "^7.6.5"
