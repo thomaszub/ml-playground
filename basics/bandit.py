@@ -22,10 +22,8 @@ class ThompsonSamplingBandit(Bandit):
 
     def pull(self) -> int:
         result = super().pull()
-        if result == 1:
-            self._alpha += 1
-        else:
-            self._beta += 1
+        self._alpha += result
+        self._beta += 1 - result
         return result
 
     def sample(self) -> float:
