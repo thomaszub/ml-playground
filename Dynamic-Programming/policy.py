@@ -8,22 +8,13 @@ from world import GridWorld
 
 
 class Policy(ABC):
-    @abstractmethod
-    def func(self, position: Position) -> Callable[[MoveAction], float]:
-        pass
-
-    @abstractmethod
-    def sample(self, position: Position) -> MoveAction:
-        pass
-
-
-class UniformRandomPolicy(Policy):
     def __init__(self, world: GridWorld) -> None:
+        super().__init__()
         self._world = world
 
+    @abstractmethod
     def func(self, position: Position) -> Callable[[MoveAction], float]:
-        possible_actions = self._world.possible_actions(position)
-        return lambda x: 1.0 / len(possible_actions)
+        pass
 
     def sample(self, position: Position) -> MoveAction:
         func = self.func(position)
@@ -35,3 +26,12 @@ class UniformRandomPolicy(Policy):
             val -= act_prob[1]
             if val < 0.0:
                 return act_prob[0]
+
+
+class UniformRandomPolicy(Policy):
+    def __init__(self, world: GridWorld) -> None:
+        super().__init__(world)
+
+    def func(self, position: Position) -> Callable[[MoveAction], float]:
+        possible_actions = self._world.possible_actions(position)
+        return lambda x: 1.0 / len(possible_actions)
