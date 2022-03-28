@@ -31,21 +31,10 @@ class GridWorld:
             self._fields[field.position] = field.type
 
     def possible_actions(self, position: Position) -> List[MoveAction]:
-        upper = Position(position.X, position.Y + 1)
-        bottom = Position(position.X, position.Y - 1)
-        left = Position(position.X - 1, position.Y)
-        right = Position(position.X + 1, position.Y)
-
-        actions = []
-        if not self._is_blocked(upper):
-            actions.append(UpMoveAction())
-        if not self._is_blocked(bottom):
-            actions.append(DownMoveAction())
-        if not self._is_blocked(left):
-            actions.append(LeftMoveAction())
-        if not self._is_blocked(right):
-            actions.append(RightMoveAction())
-        return actions
+        action_position_pairs = [
+            (act, act.apply(position)) for act in MoveAction.list()
+        ]
+        return [act for act, pos in action_position_pairs if not self._is_blocked(pos)]
 
     def move(self, position: Position, action: MoveAction) -> Tuple[Field, float]:
         new_position = action.apply(position)
