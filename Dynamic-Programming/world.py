@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Tuple
-from action import (
+from movement import (
     Position,
     MoveAction,
     UpMoveAction,
