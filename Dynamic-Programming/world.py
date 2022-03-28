@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Tuple
-
-
-@dataclass(frozen=True)
-class Position:
-    X: int
-    Y: int
+from action import (
+    Position,
+    MoveAction,
+    UpMoveAction,
+    DownMoveAction,
+    LeftMoveAction,
+    RightMoveAction,
+)
 
 
 class FieldType(Enum):
@@ -20,13 +22,6 @@ class FieldType(Enum):
 class Field:
     position: Position
     type: FieldType
-
-
-class MoveAction(Enum):
-    LEFT = 1
-    RIGHT = 2
-    UP = 3
-    DOWN = 4
 
 
 class GridWorld:
@@ -43,17 +38,17 @@ class GridWorld:
 
         actions = []
         if not self._is_blocked(upper):
-            actions.append(MoveAction.UP)
+            actions.append(UpMoveAction())
         if not self._is_blocked(bottom):
-            actions.append(MoveAction.DOWN)
+            actions.append(DownMoveAction())
         if not self._is_blocked(left):
-            actions.append(MoveAction.LEFT)
+            actions.append(LeftMoveAction())
         if not self._is_blocked(right):
-            actions.append(MoveAction.RIGHT)
+            actions.append(RightMoveAction())
         return actions
 
     def move(self, position: Position, action: MoveAction) -> Tuple[Field, float]:
-        new_position = GridWorld._apply_action(position, action)
+        new_position = action.apply(position)
         new_field_type = self._fields.get(new_position)
         if new_field_type != None:
             new_field = Field(new_position, new_field_type)
@@ -71,13 +66,3 @@ class GridWorld:
             return field == FieldType.BLOCKED
         else:
             return True
-
-    @staticmethod
-    def _apply_action(position: Position, action: MoveAction) -> Position:
-        if action == MoveAction.UP:
-            return Position(position.X, position.Y + 1)
-        if action == MoveAction.DOWN:
-            return Position(position.X, position.Y - 1)
-        if action == MoveAction.RIGHT:
-            return Position(position.X + 1, position.Y)
-        return Position(position.X - 1, position.Y)
