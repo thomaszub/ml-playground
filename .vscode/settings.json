@@ -5,6 +5,7 @@
             "!Module"
         ],
         "editor.wordBasedSuggestions": false,
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4
     }
 }
