@@ -1,35 +1,16 @@
 from copy import copy
-from typing import Callable, List, Tuple
-from world import Field, FieldType, GridWorld, MoveAction, Position
-import numpy as np
+
+from policy import Policy, UniformRandomPolicy
+from world import Field, FieldType, GridWorld, Position
 
 
-def random_policy(
-    world: GridWorld, position: Position
-) -> Callable[[MoveAction], float]:
-    possible_actions = world.possible_actions(position)
-    return lambda x: 1.0 / len(possible_actions)
-
-
-def sample_action(action_probs: List[Tuple[MoveAction, float]]) -> MoveAction:
-    val = np.random.uniform()
-    for act_prob in action_probs:
-        val -= act_prob[1]
-        if val < 0.0:
-            return act_prob[0]
-
-
-def play_game(world: GridWorld, policy: Callable[[MoveAction], float]):
+def play_game(world: GridWorld, policy: Policy):
     trajectorie = []
 
     position = Position(0, 0)
     game_ended = False
     while not game_ended:
-        policy_func = policy(world, position)
-        action_prob = [
-            (act, policy_func(act)) for act in world.possible_actions(position)
-        ]
-        action = sample_action(action_prob)
+        action = policy.sample(position)
         new_field, reward = world.move(position, action)
 
         trajectorie.append((copy(position), action, reward, new_field.position))
@@ -56,9 +37,7 @@ def main():
     ]
 
     world = GridWorld(fields)
-    print("Start")
-
-    policy = random_policy
+    policy = UniformRandomPolicy(world)
 
     for it in range(0, 1):
         trajectorie = play_game(world, policy)
