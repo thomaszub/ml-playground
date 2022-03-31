@@ -39,12 +39,31 @@ def main():
     world = GridWorld(fields)
     policy = UniformRandomPolicy(world)
 
-    for it in range(0, 1):
-        trajectorie = play_game(world, policy)
-        for state in trajectorie:
-            print(state)
+    discount_factor = 0.9
 
-        # TODO Update V
+    trajectorie = play_game(world, policy)
+    for entry in trajectorie:
+        print(entry)
+
+    possible_states = [field.position for field in fields]
+    non_terminal_states = [
+        field.position
+        for field in fields
+        if field.type != FieldType.WIN and field.type != FieldType.LOSE
+    ]
+    state_values = {state: 0.0 for state in possible_states}
+
+    for it in range(0, 1000):
+        for state in non_terminal_states:
+            possible_actions = world.possible_actions(state)
+            value = 0.0
+            for action in possible_actions:
+                new_state, reward = world.move(state, action)
+                value += policy.func(state)(action) * (
+                    reward + discount_factor * state_values[new_state.position]
+                )
+            state_values[state] = value
+    print(state_values)
 
 
 if __name__ == "__main__":
