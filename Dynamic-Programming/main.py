@@ -58,7 +58,8 @@ def main():
                     reward + discount_factor * state_values[new_state]
                 )
             state_values[state] = value
-    print(state_values)
+
+    print("\n".join([str(it[0]) + " -> " + str(it[1]) for it in state_values.items()]))
 
 
 if __name__ == "__main__":
