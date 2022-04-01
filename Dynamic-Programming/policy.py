@@ -18,14 +18,9 @@ class Policy(ABC):
 
     def sample(self, position: Position) -> MoveAction:
         func = self.func(position)
-        action_probs = [
-            (act, func(act)) for act in self._world.possible_actions(position)
-        ]
-        val = np.random.uniform()
-        for act_prob in action_probs:
-            val -= act_prob[1]
-            if val < 0.0:
-                return act_prob[0]
+        actions = self._world.possible_actions(position)
+        probs = [func(act) for act in actions]
+        return np.random.choice(actions, p=probs)
 
 
 class UniformRandomPolicy(Policy):
