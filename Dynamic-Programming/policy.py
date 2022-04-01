@@ -33,17 +33,28 @@ class UniformRandomPolicy(Policy):
         return lambda x: 1.0 / len(possible_actions)
 
 
-class ManuelPolicy(Policy):
-    def __init__(
-        self, world: GridWorld, fieldToAction: Dict[Field, List[MoveAction]]
-    ) -> None:
+class UpdateablePolicy(Policy):
+    def __init__(self, world: GridWorld, discount_factor: float) -> None:
         super().__init__(world)
-        self._fieldToAction = fieldToAction
+        self._state_to_action = {}
+        self._discount_factor = discount_factor
+        self.update({})
+
+    def update(self, state_values: Dict[Field, float]) -> None:
+        non_terminal_states = [
+            field for field in self._world.get_fields() if not field.type.is_terminal()
+        ]
+        for field in non_terminal_states:
+            possible_actions = self._world.possible_actions(field)
+            values = []
+            for action in possible_actions:
+                new_state, reward = self._world.move(field, action)
+                value = reward + self._discount_factor * state_values.get(
+                    new_state, 0.0
+                )
+                values.append(value)
+            self._state_to_action.update({field: possible_actions[np.argmax(values)]})
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
-        chosen_actions = self._fieldToAction[field]
-        return (
-            lambda action: 1.0 / len(chosen_actions)
-            if action in chosen_actions
-            else 0.0
-        )
+        best_action = self._state_to_action[field]
+        return lambda action: 1.0 if action == best_action else 0.0
