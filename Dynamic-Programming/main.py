@@ -4,17 +4,17 @@ from policy import Policy, UniformRandomPolicy
 from world import Field, FieldType, GridWorld, Position
 
 
-def play_game(world: GridWorld, policy: Policy):
+def play_game(world: GridWorld, policy: Policy, start_field: Field):
     trajectorie = []
 
-    position = Position(0, 0)
+    field = start_field
     game_ended = False
     while not game_ended:
-        action = policy.sample(position)
-        new_field, reward = world.move(position, action)
+        action = policy.sample(field)
+        new_field, reward = world.move(field, action)
 
-        trajectorie.append((copy(position), action, reward, new_field.position))
-        position = new_field.position
+        trajectorie.append((copy(field), action, reward, new_field))
+        field = new_field
         if new_field.type == FieldType.WIN or new_field.type == FieldType.LOSE:
             game_ended = True
 
@@ -22,8 +22,9 @@ def play_game(world: GridWorld, policy: Policy):
 
 
 def main():
+    start_field = Field(Position(0, 0), FieldType.FREE)
     fields = [
-        Field(Position(0, 0), FieldType.FREE),
+        start_field,
         Field(Position(1, 0), FieldType.FREE),
         Field(Position(2, 0), FieldType.FREE),
         Field(Position(3, 0), FieldType.FREE),
@@ -41,17 +42,16 @@ def main():
 
     discount_factor = 0.9
 
-    trajectorie = play_game(world, policy)
+    trajectorie = play_game(world, policy, start_field)
     for entry in trajectorie:
         print(entry)
 
-    possible_states = [field.position for field in fields]
     non_terminal_states = [
-        field.position
+        field
         for field in fields
         if field.type != FieldType.WIN and field.type != FieldType.LOSE
     ]
-    state_values = {state: 0.0 for state in possible_states}
+    state_values = {state: 0.0 for state in fields}
 
     for it in range(0, 1000):
         for state in non_terminal_states:
@@ -60,7 +60,7 @@ def main():
             for action in possible_actions:
                 new_state, reward = world.move(state, action)
                 value += policy.func(state)(action) * (
-                    reward + discount_factor * state_values[new_state.position]
+                    reward + discount_factor * state_values[new_state]
                 )
             state_values[state] = value
     print(state_values)

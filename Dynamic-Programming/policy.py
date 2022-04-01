@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import Field
 from typing import Callable, Dict, List
 
 import numpy as np
@@ -13,12 +14,12 @@ class Policy(ABC):
         self._world = world
 
     @abstractmethod
-    def func(self, position: Position) -> Callable[[MoveAction], float]:
+    def func(self, field: Field) -> Callable[[MoveAction], float]:
         pass
 
-    def sample(self, position: Position) -> MoveAction:
-        func = self.func(position)
-        actions = self._world.possible_actions(position)
+    def sample(self, field: Field) -> MoveAction:
+        func = self.func(field)
+        actions = self._world.possible_actions(field)
         probs = [func(act) for act in actions]
         return np.random.choice(actions, p=probs)
 
@@ -27,20 +28,20 @@ class UniformRandomPolicy(Policy):
     def __init__(self, world: GridWorld) -> None:
         super().__init__(world)
 
-    def func(self, position: Position) -> Callable[[MoveAction], float]:
-        possible_actions = self._world.possible_actions(position)
+    def func(self, field: Field) -> Callable[[MoveAction], float]:
+        possible_actions = self._world.possible_actions(field)
         return lambda x: 1.0 / len(possible_actions)
 
 
 class ManuelPolicy(Policy):
     def __init__(
-        self, world: GridWorld, positionToAction: Dict[Position, List[MoveAction]]
+        self, world: GridWorld, fieldToAction: Dict[Field, List[MoveAction]]
     ) -> None:
         super().__init__(world)
-        self._positionToAction = positionToAction
+        self._fieldToAction = fieldToAction
 
-    def func(self, position: Position) -> Callable[[MoveAction], float]:
-        chosen_actions = self._positionToAction[position]
+    def func(self, field: Field) -> Callable[[MoveAction], float]:
+        chosen_actions = self._fieldToAction[field]
         return (
             lambda action: 1.0 / len(chosen_actions)
             if action in chosen_actions
