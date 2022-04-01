@@ -1,14 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Tuple
-from movement import (
-    Position,
-    MoveAction,
-    UpMoveAction,
-    DownMoveAction,
-    LeftMoveAction,
-    RightMoveAction,
-)
+from movement import Position, MoveAction
 
 
 class FieldType(Enum):
