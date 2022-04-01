@@ -10,6 +10,9 @@ class FieldType(Enum):
     WIN = auto()
     LOSE = auto()
 
+    def is_terminal(self) -> bool:
+        return True if self == FieldType.WIN or self == FieldType.LOSE else False
+
     def __str__(self) -> str:
         return self.name
 

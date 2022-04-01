@@ -15,8 +15,7 @@ def play_game(world: GridWorld, policy: Policy, start_field: Field):
 
         trajectorie.append((copy(field), action, reward, new_field))
         field = new_field
-        if new_field.type == FieldType.WIN or new_field.type == FieldType.LOSE:
-            game_ended = True
+        game_ended = new_field.type.is_terminal()
 
     return trajectorie
 
@@ -46,11 +45,7 @@ def main():
     for entry in trajectorie:
         print(entry)
 
-    non_terminal_states = [
-        field
-        for field in fields
-        if field.type != FieldType.WIN and field.type != FieldType.LOSE
-    ]
+    non_terminal_states = [field for field in fields if not field.type.is_terminal()]
     state_values = {state: 0.0 for state in fields}
 
     for it in range(0, 1000):
