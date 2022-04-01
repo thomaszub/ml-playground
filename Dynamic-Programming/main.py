@@ -1,5 +1,6 @@
 from copy import copy
 
+from evaluation import calc_state_values
 from policy import Policy, UniformRandomPolicy
 from world import Field, FieldType, GridWorld, Position
 
@@ -40,24 +41,13 @@ def main():
     policy = UniformRandomPolicy(world)
 
     discount_factor = 0.9
+    eps = pow(10, -6)
 
     trajectorie = play_game(world, policy, start_field)
     for entry in trajectorie:
         print(entry)
 
-    non_terminal_states = [field for field in fields if not field.type.is_terminal()]
-    state_values = {state: 0.0 for state in fields}
-
-    for it in range(0, 1000):
-        for state in non_terminal_states:
-            possible_actions = world.possible_actions(state)
-            value = 0.0
-            for action in possible_actions:
-                new_state, reward = world.move(state, action)
-                value += policy.func(state)(action) * (
-                    reward + discount_factor * state_values[new_state]
-                )
-            state_values[state] = value
+    state_values = calc_state_values(world, policy, discount_factor, eps)
 
     print("\n".join([str(it[0]) + " -> " + str(it[1]) for it in state_values.items()]))
 

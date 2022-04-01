@@ -32,6 +32,9 @@ class GridWorld:
         for field in fields:
             self._fields[field.position] = field.type
 
+    def get_fields(self) -> List[Field]:
+        return [Field(it[0], it[1]) for it in self._fields.items()]
+
     def possible_actions(self, field: Field) -> List[MoveAction]:
         action_position_pairs = [
             (act, act.apply(field.position)) for act in MoveAction.list()
