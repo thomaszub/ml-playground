@@ -1,9 +1,10 @@
 from copy import copy
 
-from evaluation import calc_state_values
+from tqdm import trange
+
+from evaluation import state_values_for_policy, state_values_optimal
 from policy import Policy, UniformRandomPolicy, UpdateablePolicy
 from world import Field, FieldType, GridWorld, Position
-from tqdm import trange
 
 
 def play_game(world: GridWorld, policy: Policy, start_field: Field):
@@ -19,6 +20,32 @@ def play_game(world: GridWorld, policy: Policy, start_field: Field):
         game_ended = new_field.type.is_terminal()
 
     return trajectorie
+
+
+def policy_by_policy_iteration(
+    world: GridWorld, start_field: Field, discount_factor: float, eps: float
+) -> Policy:
+    random_policy = UniformRandomPolicy(world)
+    policy = UpdateablePolicy(world, 0.9)
+
+    # initialize state values with random policy to avoid endless loop
+    play_game(world, random_policy, start_field)
+    state_values = state_values_for_policy(world, random_policy, discount_factor, eps)
+    policy.update(state_values)
+
+    # Optimize policy by iteration
+    for run in trange(0, 100, desc="Run: "):
+        state_values = state_values_for_policy(world, policy, discount_factor, eps)
+        policy.update(state_values)
+
+    return policy
+
+
+def policy_by_value_iteration(
+    world: GridWorld, discount_factor: float, eps: float
+) -> Policy:
+    state_values = state_values_optimal(world, discount_factor, eps)
+    return UpdateablePolicy(world, 0.9, state_values)
 
 
 def main():
@@ -38,27 +65,17 @@ def main():
     ]
 
     world = GridWorld(fields)
-    random_policy = UniformRandomPolicy(world)
-    policy = UpdateablePolicy(world, 0.9)
 
     discount_factor = 0.9
     eps = pow(10, -6)
 
-    # initialize state values with random policy to avoid endless loop
-    play_game(world, random_policy, start_field)
-    state_values = calc_state_values(world, random_policy, discount_factor, eps)
-    policy.update(state_values)
-
-    # Optimize policy by iteration
-    for run in trange(0, 100, desc="Run: "):
-        play_game(world, policy, start_field)
-        state_values = calc_state_values(world, policy, discount_factor, eps)
-        policy.update(state_values)
+    # policy = policy_by_policy_iteration(world, start_field, discount_factor, eps)
+    policy = policy_by_value_iteration(world, discount_factor, eps)
 
     trajectorie = play_game(world, policy, start_field)
     for entry in trajectorie:
         print(entry)
-    state_values = calc_state_values(world, policy, discount_factor, eps)
+    state_values = state_values_for_policy(world, policy, discount_factor, eps)
 
     print("\n".join([str(it[0]) + " -> " + str(it[1]) for it in state_values.items()]))
 

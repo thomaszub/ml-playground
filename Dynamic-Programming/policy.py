@@ -34,11 +34,16 @@ class UniformRandomPolicy(Policy):
 
 
 class UpdateablePolicy(Policy):
-    def __init__(self, world: GridWorld, discount_factor: float) -> None:
+    def __init__(
+        self,
+        world: GridWorld,
+        discount_factor: float,
+        state_values: Dict[Field, float] = {},
+    ) -> None:
         super().__init__(world)
         self._state_to_action = {}
         self._discount_factor = discount_factor
-        self.update({})
+        self.update(state_values)
 
     def update(self, state_values: Dict[Field, float]) -> None:
         non_terminal_states = [
@@ -53,7 +58,8 @@ class UpdateablePolicy(Policy):
                     new_state, 0.0
                 )
                 values.append(value)
-            self._state_to_action.update({field: possible_actions[np.argmax(values)]})
+            best_action = possible_actions[np.argmax(values)]
+            self._state_to_action.update({field: best_action})
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
         best_action = self._state_to_action[field]
