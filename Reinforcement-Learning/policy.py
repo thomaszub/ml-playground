@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import Field
-from typing import Callable, Dict, List
+from typing import Callable, Dict
 
 import numpy as np
 
-from movement import MoveAction, Position
-from world import GridWorld
+from environment.movement import MoveAction
+from environment.world import GridWorld
 
 
 class Policy(ABC):
@@ -33,7 +33,7 @@ class UniformRandomPolicy(Policy):
         return lambda x: 1.0 / len(possible_actions)
 
 
-class UpdateablePolicy(Policy):
+class ArgMaxPolicy(Policy):
     def __init__(
         self,
         world: GridWorld,
@@ -51,14 +51,14 @@ class UpdateablePolicy(Policy):
         ]
         for field in non_terminal_states:
             possible_actions = self._world.possible_actions(field)
-            values = []
+            action_values = []
             for action in possible_actions:
                 new_state, reward = self._world.move(field, action)
                 value = reward + self._discount_factor * state_values.get(
                     new_state, 0.0
                 )
-                values.append(value)
-            best_action = possible_actions[np.argmax(values)]
+                action_values.append(value)
+            best_action = possible_actions[np.argmax(action_values)]
             self._state_to_action.update({field: best_action})
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:

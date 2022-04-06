@@ -1,7 +1,7 @@
 from typing import Dict
 
+from environment.world import Field, GridWorld
 from policy import Policy
-from world import Field, GridWorld
 
 
 def state_values_for_policy(
