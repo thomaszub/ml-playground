@@ -2,7 +2,11 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from evaluation import state_values_for_policy, state_values_optimal
+from evaluation import (
+    calc_action_values,
+    calc_state_values_for_policy,
+    calc_state_values_optimal,
+)
 from policy import ArgMaxPolicy, Policy, UniformRandomPolicy
 from util import print_state_values
 
@@ -11,17 +15,21 @@ def policy_by_policy_iteration(
     world: GridWorld, start_field: Field, discount_factor: float, eps: float
 ) -> Policy:
     random_policy = UniformRandomPolicy(world)
-    policy = ArgMaxPolicy(world, 0.9)
+    policy = ArgMaxPolicy(world)
 
     # initialize state values with random policy to avoid endless loop
     game.play(world, random_policy, start_field)
-    state_values = state_values_for_policy(world, random_policy, discount_factor, eps)
-    policy.update(state_values)
+    state_values = calc_state_values_for_policy(
+        world, random_policy, discount_factor, eps
+    )
+    action_values = calc_action_values(world, state_values, discount_factor)
+    policy.update(action_values)
 
     # Optimize policy by iteration
     for run in trange(0, 100, desc="Run: "):
-        state_values = state_values_for_policy(world, policy, discount_factor, eps)
-        policy.update(state_values)
+        state_values = calc_state_values_for_policy(world, policy, discount_factor, eps)
+        action_values = calc_action_values(world, state_values, discount_factor)
+        policy.update(action_values)
 
     return policy
 
@@ -29,8 +37,9 @@ def policy_by_policy_iteration(
 def policy_by_value_iteration(
     world: GridWorld, discount_factor: float, eps: float
 ) -> Policy:
-    state_values = state_values_optimal(world, discount_factor, eps)
-    return ArgMaxPolicy(world, 0.9, state_values)
+    state_values = calc_state_values_optimal(world, discount_factor, eps)
+    action_values = calc_action_values(world, state_values, discount_factor)
+    return ArgMaxPolicy(world, action_values)
 
 
 def main():
@@ -60,7 +69,7 @@ def main():
     trajectorie = game.play(world, policy, start_field)
     for entry in trajectorie:
         print(entry)
-    state_values = state_values_for_policy(world, policy, discount_factor, eps)
+    state_values = calc_state_values_for_policy(world, policy, discount_factor, eps)
 
     print_state_values(state_values)
 

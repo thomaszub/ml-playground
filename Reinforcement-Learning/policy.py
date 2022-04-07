@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import Field
-from typing import Callable, Dict
+from typing import Callable, Dict, Tuple
 
 import numpy as np
 
@@ -37,30 +37,17 @@ class ArgMaxPolicy(Policy):
     def __init__(
         self,
         world: GridWorld,
-        discount_factor: float,
-        state_values: Dict[Field, float] = {},
+        action_values: Dict[Tuple[Field, MoveAction], float] = {},
     ) -> None:
         super().__init__(world)
-        self._state_to_action = {}
-        self._discount_factor = discount_factor
-        self.update(state_values)
+        self._action_values = action_values
 
-    def update(self, state_values: Dict[Field, float]) -> None:
-        non_terminal_states = [
-            field for field in self._world.get_fields() if not field.type.is_terminal()
-        ]
-        for field in non_terminal_states:
-            possible_actions = self._world.possible_actions(field)
-            action_values = []
-            for action in possible_actions:
-                new_state, reward = self._world.move(field, action)
-                value = reward + self._discount_factor * state_values.get(
-                    new_state, 0.0
-                )
-                action_values.append(value)
-            best_action = possible_actions[np.argmax(action_values)]
-            self._state_to_action.update({field: best_action})
+    def update(self, action_values: Dict[Tuple[Field, MoveAction], float]) -> None:
+        self._action_values = action_values
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
-        best_action = self._state_to_action[field]
+        action_values_for_state = [
+            (it[0][1], it[1]) for it in self._action_values.items() if it[0][0] == field
+        ]
+        best_action = max(action_values_for_state, key=lambda a: a[1])[0]
         return lambda action: 1.0 if action == best_action else 0.0
