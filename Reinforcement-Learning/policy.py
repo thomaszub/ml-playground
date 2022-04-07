@@ -24,13 +24,37 @@ class Policy(ABC):
         return np.random.choice(actions, p=probs)
 
 
-class UniformRandomPolicy(Policy):
-    def __init__(self, world: GridWorld) -> None:
+class EpsilonGreedyPolicy(Policy):
+    def __init__(self, world: GridWorld, epsilon: float, policy: Policy = None) -> None:
         super().__init__(world)
+        if epsilon < 1.0 and policy == None:
+            raise ValueError("policy can not be None if epsilon is smaller 1.0")
+        self._epsilon = epsilon
+        self._policy = policy
+
+    def _random_func(self, field: Field) -> Callable[[MoveAction], float]:
+        possible_actions = self._world.possible_actions(field)
+        return lambda _: 1.0 / len(possible_actions)
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
-        possible_actions = self._world.possible_actions(field)
-        return lambda x: 1.0 / len(possible_actions)
+        eps = self._epsilon
+        return lambda a: eps * self._random_func(field)(a) + (
+            1.0 - eps
+        ) * self._policy.func(field)(a)
+
+    def _sample(self, field: Field, prob: Callable[[MoveAction], float]) -> MoveAction:
+        actions = self._world.possible_actions(field)
+        probs = [prob(act) for act in actions]
+        return np.random.choice(actions, p=probs)
+
+    def sample(
+        self,
+        field: Field,
+    ) -> MoveAction:
+        if np.random.random() < self._epsilon:
+            return self._sample(field, self._random_func(field))
+        else:
+            return self._sample(field, self._policy.func(field))
 
 
 class ArgMaxPolicy(Policy):

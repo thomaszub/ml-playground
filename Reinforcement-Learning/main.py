@@ -3,7 +3,7 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from policy import UniformRandomPolicy
+from policy import EpsilonGreedyPolicy
 from util import print_state_values
 
 
@@ -28,7 +28,7 @@ def main():
     discount_factor = 0.9
     learning_rate = 0.1
 
-    policy = UniformRandomPolicy(world)
+    policy = EpsilonGreedyPolicy(world, 1.0)
 
     state_values = {state: 0.0 for state in world.get_fields()}
 

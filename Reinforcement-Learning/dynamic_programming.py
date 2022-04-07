@@ -7,14 +7,14 @@ from evaluation import (
     calc_state_values_for_policy,
     calc_state_values_optimal,
 )
-from policy import ArgMaxPolicy, Policy, UniformRandomPolicy
+from policy import ArgMaxPolicy, EpsilonGreedyPolicy, Policy
 from util import print_state_values
 
 
 def policy_by_policy_iteration(
     world: GridWorld, start_field: Field, discount_factor: float, eps: float
 ) -> Policy:
-    random_policy = UniformRandomPolicy(world)
+    random_policy = EpsilonGreedyPolicy(world, 1.0)
     policy = ArgMaxPolicy(world)
 
     # initialize state values with random policy to avoid endless loop
