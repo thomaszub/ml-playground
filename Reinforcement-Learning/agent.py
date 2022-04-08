@@ -2,13 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Callable, Tuple
 
 from typing import Dict
-from tqdm import trange
 
-import game
-from environment.world import Field, FieldType, GridWorld, Position
+from environment.world import Field
 from environment.movement import MoveAction
-from policy import EpsilonGreedyPolicy, Policy, ArgMaxPolicy
-from util import print_state_values
+from policy import Policy
 
 
 class Agent(ABC):
