@@ -1,10 +1,31 @@
-import numpy as np
+from typing import Dict
 from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from policy import EpsilonGreedyPolicy
+from policy import EpsilonGreedyPolicy, Policy
 from util import print_state_values
+
+
+def calc_state_values(
+    world: GridWorld,
+    policy: Policy,
+    start_field: Field,
+    learning_rate: float,
+    discount_factor: float = 0.9,
+    iterations: float = 2000,
+) -> Dict[Field, float]:
+    state_values = {state: 0.0 for state in world.get_fields()}
+
+    def learn_callback(state: Field, reward: float, new_state: Field) -> None:
+        state_values[state] += learning_rate * (
+            reward + discount_factor * state_values[new_state] - state_values[state]
+        )
+
+    for _ in trange(0, iterations, desc="Playing game"):
+        game.play(world, policy, start_field, learn_callback)
+
+    return state_values
 
 
 def main():
@@ -24,21 +45,11 @@ def main():
     ]
 
     world = GridWorld(fields)
-
-    discount_factor = 0.9
-    learning_rate = 0.1
-
     policy = EpsilonGreedyPolicy(world, 1.0)
 
-    state_values = {state: 0.0 for state in world.get_fields()}
+    learning_rate = 0.1
 
-    def learn_callback(state: Field, reward: float, new_state: Field) -> None:
-        state_values[state] += learning_rate * (
-            reward + discount_factor * state_values[new_state] - state_values[state]
-        )
-
-    for it in trange(0, 5000):
-        game.play(world, policy, start_field, learn_callback)
+    state_values = calc_state_values(world, policy, start_field, learning_rate)
 
     print_state_values(state_values)
 
