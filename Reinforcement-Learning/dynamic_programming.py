@@ -2,7 +2,7 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from evaluation import (
+from dp.evaluation import (
     calc_action_values,
     calc_state_values_for_policy,
     calc_state_values_optimal,
