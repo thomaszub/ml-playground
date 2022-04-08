@@ -50,24 +50,17 @@ def main():
     learning_rate = 0.1
     discount_factor = 0.9
 
-    action_values = {
-        (field, action): 0.0
-        for field in world.get_fields()
-        for action in world.possible_actions(field)
-    }
-    policy = EpsilonGreedyPolicy(world, 0.1, ArgMaxPolicy(world, action_values))
-
-    agent = SarsaAgent(policy, action_values, learning_rate, discount_factor)
+    agent = SarsaAgent(world, 0.1, learning_rate, discount_factor)
 
     for _ in trange(0, 2000, desc="SARSA -> Playing game"):
         agent.reset(start_field)
         game.play(world, agent.action_callback(), start_field, agent.learn_callback())
 
     state_values = calc_state_values(
-        world, policy, start_field, learning_rate, discount_factor
+        world, agent.get_policy(), start_field, learning_rate, discount_factor
     )
     print_state_values(state_values)
-    print_action_values(action_values)
+    print_action_values(agent.get_action_values())
 
 
 if __name__ == "__main__":
