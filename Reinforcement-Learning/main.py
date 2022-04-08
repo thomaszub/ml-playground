@@ -3,9 +3,8 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from environment.movement import MoveAction
 from policy import EpsilonGreedyPolicy, Policy, ArgMaxPolicy
-from util import print_state_values
+from util import print_state_values, print_action_values
 from agent import SarsaAgent
 
 
@@ -68,6 +67,7 @@ def main():
         world, policy, start_field, learning_rate, discount_factor
     )
     print_state_values(state_values)
+    print_action_values(action_values)
 
 
 if __name__ == "__main__":

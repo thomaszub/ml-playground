@@ -1,7 +1,12 @@
-from typing import Dict
+from argparse import Action
+from typing import Dict, Tuple
 
 from environment.world import Field
 
 
-def print_state_values(state_values: Dict[Field, float]):
+def print_state_values(state_values: Dict[Field, float]) -> None:
     print("\n".join([str(it[0]) + " -> " + str(it[1]) for it in state_values.items()]))
+
+
+def print_action_values(action_values: Dict[Tuple[Field, Action], float]) -> None:
+    print("\n".join([str(it[0]) + " -> " + str(it[1]) for it in action_values.items()]))
