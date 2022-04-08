@@ -3,8 +3,10 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from policy import EpsilonGreedyPolicy, Policy
+from environment.movement import MoveAction
+from policy import EpsilonGreedyPolicy, Policy, ArgMaxPolicy
 from util import print_state_values
+from agent import SarsaAgent
 
 
 def calc_state_values(
@@ -22,8 +24,8 @@ def calc_state_values(
             reward + discount_factor * state_values[new_state] - state_values[state]
         )
 
-    for _ in trange(0, iterations, desc="Playing game"):
-        game.play(world, policy, start_field, learn_callback)
+    for _ in trange(0, iterations, desc="State values -> Playing game"):
+        game.play(world, policy.sample, start_field, learn_callback)
 
     return state_values
 
@@ -45,12 +47,26 @@ def main():
     ]
 
     world = GridWorld(fields)
-    policy = EpsilonGreedyPolicy(world, 1.0)
 
     learning_rate = 0.1
+    discount_factor = 0.9
 
-    state_values = calc_state_values(world, policy, start_field, learning_rate)
+    action_values = {
+        (field, action): 0.0
+        for field in world.get_fields()
+        for action in world.possible_actions(field)
+    }
+    policy = EpsilonGreedyPolicy(world, 0.1, ArgMaxPolicy(world, action_values))
 
+    agent = SarsaAgent(policy, action_values, learning_rate, discount_factor)
+
+    for _ in trange(0, 2000, desc="SARSA -> Playing game"):
+        agent.reset(start_field)
+        game.play(world, agent.action_callback(), start_field, agent.learn_callback())
+
+    state_values = calc_state_values(
+        world, policy, start_field, learning_rate, discount_factor
+    )
     print_state_values(state_values)
 
 
