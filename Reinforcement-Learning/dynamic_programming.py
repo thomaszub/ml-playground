@@ -15,7 +15,6 @@ def policy_by_policy_iteration(
     world: GridWorld, start_field: Field, discount_factor: float, eps: float
 ) -> Policy:
     random_policy = EpsilonGreedyPolicy(world, 1.0)
-    policy = ArgMaxPolicy(world)
 
     # initialize state values with random policy to avoid endless loop
     game.play(world, random_policy, start_field)
@@ -23,13 +22,12 @@ def policy_by_policy_iteration(
         world, random_policy, discount_factor, eps
     )
     action_values = calc_action_values(world, state_values, discount_factor)
-    policy.update(action_values)
+    policy = ArgMaxPolicy(world, action_values)
 
     # Optimize policy by iteration
-    for run in trange(0, 100, desc="Run: "):
+    for _ in trange(0, 100, desc="Run: "):
         state_values = calc_state_values_for_policy(world, policy, discount_factor, eps)
         action_values = calc_action_values(world, state_values, discount_factor)
-        policy.update(action_values)
 
     return policy
 

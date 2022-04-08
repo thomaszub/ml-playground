@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import Field
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -38,9 +38,12 @@ class EpsilonGreedyPolicy(Policy):
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
         eps = self._epsilon
-        return lambda a: eps * self._random_func(field)(a) + (
-            1.0 - eps
-        ) * self._policy.func(field)(a)
+        if self._policy == None:
+            return lambda a: self._random_func(field)(a)
+        else:
+            return lambda a: eps * self._random_func(field)(a) + (
+                1.0 - eps
+            ) * self._policy.func(field)(a)
 
     def _sample(self, field: Field, prob: Callable[[MoveAction], float]) -> MoveAction:
         actions = self._world.possible_actions(field)
@@ -61,12 +64,9 @@ class ArgMaxPolicy(Policy):
     def __init__(
         self,
         world: GridWorld,
-        action_values: Dict[Tuple[Field, MoveAction], float] = {},
+        action_values: Dict[Tuple[Field, MoveAction], float],
     ) -> None:
         super().__init__(world)
-        self._action_values = action_values
-
-    def update(self, action_values: Dict[Tuple[Field, MoveAction], float]) -> None:
         self._action_values = action_values
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
