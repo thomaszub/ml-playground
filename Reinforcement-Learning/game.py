@@ -2,12 +2,12 @@ from copy import copy
 from typing import Callable
 
 from environment.world import Field, GridWorld
-from policy import Policy
+from environment.movement import MoveAction
 
 
 def play(
     world: GridWorld,
-    policy: Policy,
+    action_callback: Callable[[Field], MoveAction],
     start_field: Field,
     new_state_callback: Callable[[Field, float, Field], None] = None,
 ):
@@ -16,7 +16,7 @@ def play(
     field = start_field
     game_ended = False
     while not game_ended:
-        action = policy.sample(field)
+        action = action_callback(field)
         new_field, reward = world.move(field, action)
         if new_state_callback != None:
             new_state_callback(field, reward, new_field)

@@ -17,7 +17,7 @@ def policy_by_policy_iteration(
     random_policy = EpsilonGreedyPolicy(world, 1.0)
 
     # initialize state values with random policy to avoid endless loop
-    game.play(world, random_policy, start_field)
+    game.play(world, random_policy.sample, start_field)
     state_values = calc_state_values_for_policy(
         world, random_policy, discount_factor, eps
     )
@@ -64,7 +64,7 @@ def main():
     # policy = policy_by_policy_iteration(world, start_field, discount_factor, eps)
     policy = policy_by_value_iteration(world, discount_factor, eps)
 
-    trajectorie = game.play(world, policy, start_field)
+    trajectorie = game.play(world, policy.sample, start_field)
     for entry in trajectorie:
         print(entry)
     state_values = calc_state_values_for_policy(world, policy, discount_factor, eps)
