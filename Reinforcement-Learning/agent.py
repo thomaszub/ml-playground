@@ -65,3 +65,51 @@ class SarsaAgent(Agent):
 
     def get_policy(self) -> Policy:
         return self._policy
+
+
+class QAgent(Agent):
+    def __init__(
+        self,
+        world: GridWorld,
+        epsilon: float,
+        learning_rate: float,
+        discount_factor: float,
+    ) -> None:
+        super().__init__()
+        self._action_values = {
+            (field, action): 0.0
+            for field in world.get_fields()
+            for action in world.possible_actions(field)
+        }
+        self._target_policy = ArgMaxPolicy(world, self._action_values)
+        self._behavior_policy = EpsilonGreedyPolicy(world, epsilon, self._target_policy)
+        self._learning_rate = learning_rate
+        self._discount_factor = discount_factor
+
+    def reset(self, start_field: Field):
+        self._action = self._behavior_policy.sample(start_field)
+
+    def action_callback(self) -> Callable[[Field], MoveAction]:
+        def _func(field: Field) -> MoveAction:
+            self._action = self._behavior_policy.sample(field)
+            return self._action
+
+        return _func
+
+    def learn_callback(self) -> Callable[[Field, float, Field], None]:
+        def learn_callback(field: Field, reward: float, new_field: Field) -> None:
+            best_next_action = self._target_policy.sample(new_field)
+            self._action_values[(field, self._action)] += self._learning_rate * (
+                reward
+                + self._discount_factor
+                * self._action_values[(new_field, best_next_action)]
+                - self._action_values[(field, self._action)]
+            )
+
+        return learn_callback
+
+    def get_action_values(self) -> Dict[Tuple[Field, MoveAction], float]:
+        return self._action_values
+
+    def get_policy(self) -> Policy:
+        return self._target_policy

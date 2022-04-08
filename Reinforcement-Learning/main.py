@@ -3,9 +3,9 @@ from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from policy import EpsilonGreedyPolicy, Policy, ArgMaxPolicy
+from policy import Policy
 from util import print_state_values, print_action_values
-from agent import SarsaAgent
+from agent import QAgent
 
 
 def calc_state_values(
@@ -50,7 +50,7 @@ def main():
     learning_rate = 0.1
     discount_factor = 0.9
 
-    agent = SarsaAgent(world, 0.1, learning_rate, discount_factor)
+    agent = QAgent(world, 0.1, learning_rate, discount_factor)
 
     for _ in trange(0, 2000, desc="SARSA -> Playing game"):
         agent.reset(start_field)
