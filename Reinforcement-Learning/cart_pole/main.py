@@ -39,7 +39,6 @@ def main() -> None:
         for _ in titer:
             reward = play(env, agent, False, True)
             titer.set_postfix(reward=reward)
-            titer.update()
 
     reward = play(env, agent, True, False)
     print(f"Reward: {reward}")
