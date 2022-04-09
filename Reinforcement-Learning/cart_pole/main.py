@@ -7,36 +7,39 @@ from model import LinearRBFActionModel
 
 
 def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool) -> int:
-    steps = 0
+    sum_reward = 0
     done = False
     observation = env.reset()
     while not done:
-        steps += 1
         if render:
             env.render()
-        action = agent.sample(observation)
+        action = agent.sample(observation, train)
         new_observation, reward, done, info = env.step(action)
+        sum_reward += reward
         if train:
             agent.train(observation, action, reward, new_observation, done)
         observation = new_observation
-    return steps
+    return sum_reward
 
 
 def main() -> None:
     env = gym.make("CartPole-v1")
-    render = False
     agent = Agent(
-        LinearRBFActionModel(env.observation_space, env.action_space, 0.1), 0.9, 0.1
+        model=LinearRBFActionModel(
+            env.observation_space, env.action_space, learning_rate=0.05
+        ),
+        discount_rate=0.9,
+        epsilon=0.1,
     )
 
-    with trange(0, 200, desc="Iteration") as titer:
+    with trange(0, 1000, desc="Iteration") as titer:
         for _ in titer:
-            steps = play(env, agent, False, True)
-            titer.set_postfix(steps=steps)
+            reward = play(env, agent, False, True)
+            titer.set_postfix(reward=reward)
             titer.update()
 
-    steps = play(env, agent, True, False)
-    print(f"Steps: {steps}")
+    reward = play(env, agent, True, False)
+    print(f"Reward: {reward}")
 
     env.close()
 

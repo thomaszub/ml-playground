@@ -17,8 +17,8 @@ class Agent:
         self._espsilon = epsilon
         self._model = model
 
-    def sample(self, observation: np.ndarray) -> int:
-        if np.random.random() < self._espsilon:
+    def sample(self, observation: np.ndarray, eps_greedy: bool) -> int:
+        if eps_greedy and np.random.random() < self._espsilon:
             return np.random.choice([0, 1], p=[0.5, 0.5])
         else:
             Q_0 = self._model.predict(observation, 0)
