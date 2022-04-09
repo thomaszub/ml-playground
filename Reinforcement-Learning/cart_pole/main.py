@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import trange
 
 from agent import Agent
-from model import LinearRBFActionModel
+from model import DeepNNActionModel, LinearRBFActionModel
 
 
 def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool) -> int:
@@ -25,14 +25,9 @@ def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool)
 def main() -> None:
     env = gym.make("CartPole-v1")
     agent = Agent(
-        model=LinearRBFActionModel(
-            env.observation_space,
-            env.action_space,
-            n_components=32,
-            learning_rate=0.05,
-        ),
+        model=DeepNNActionModel(hidden_nodes=(32, 16)),
         discount_rate=0.9,
-        epsilon=0.05,
+        epsilon=0.1,
     )
 
     with trange(0, 1000, desc="Iteration") as titer:
