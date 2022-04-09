@@ -1,8 +1,25 @@
 import gym
+import numpy as np
 from tqdm import trange
 
 from agent import Agent
 from model import LinearRBFActionModel
+
+
+def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool) -> int:
+    steps = 0
+    done = False
+    observation = env.reset()
+    while not done:
+        steps += 1
+        if render:
+            env.render()
+        action = agent.sample(observation)
+        new_observation, reward, done, info = env.step(action)
+        if train:
+            agent.train(observation, action, reward, new_observation, done)
+        observation = new_observation
+    return steps
 
 
 def main() -> None:
@@ -14,20 +31,12 @@ def main() -> None:
 
     with trange(0, 200, desc="Iteration") as titer:
         for _ in titer:
-            steps = 0
-            done = False
-            observation = env.reset()
-            while not done:
-                steps += 1
-                if render:
-                    env.render()
-                action = agent.sample(observation)
-                new_observation, reward, done, info = env.step(action)
-                agent.train(observation, action, reward, new_observation, done)
-                observation = new_observation
-
+            steps = play(env, agent, False, True)
             titer.set_postfix(steps=steps)
             titer.update()
+
+    steps = play(env, agent, True, False)
+    print(f"Steps: {steps}")
 
     env.close()
 
