@@ -30,7 +30,7 @@ class LinearRBFActionModel(ActionModel):
         self._model = SGDRegressor(learning_rate="constant", eta0=learning_rate)
         self._model.partial_fit(
             self._sampled_input(observation_space.sample(), action_space.sample()),
-            self._target(0.0),
+            self._target(1.0),
         )
 
     def predict(self, observation: np.ndarray, action: int) -> float:
@@ -48,4 +48,4 @@ class LinearRBFActionModel(ActionModel):
         return self._sampler.transform(self._input(observation, action))
 
     def _target(self, value: float):
-        return np.array([value]).ravel()
+        return np.array([value])
