@@ -21,9 +21,10 @@ class LinearRBFActionModel(ActionModel):
         self,
         observation_space: gym.Space[np.ndarray],
         action_space: gym.Space[int],
+        n_components: int,
         learning_rate: float,
     ) -> None:
-        self._sampler = RBFSampler(n_components=4)
+        self._sampler = RBFSampler(n_components=n_components)
         self._sampler.fit(
             self._input(observation_space.sample(), action_space.sample())
         )

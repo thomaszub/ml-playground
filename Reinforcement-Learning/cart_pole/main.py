@@ -26,10 +26,13 @@ def main() -> None:
     env = gym.make("CartPole-v1")
     agent = Agent(
         model=LinearRBFActionModel(
-            env.observation_space, env.action_space, learning_rate=0.05
+            env.observation_space,
+            env.action_space,
+            n_components=32,
+            learning_rate=0.05,
         ),
         discount_rate=0.9,
-        epsilon=0.1,
+        epsilon=0.05,
     )
 
     with trange(0, 1000, desc="Iteration") as titer:
