@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from sklearn.kernel_approximation import RBFSampler
 from sklearn.linear_model import SGDRegressor
+from torch.utils.data import DataLoader, TensorDataset
 
 
 class ActionModel(ABC):
@@ -55,7 +56,12 @@ class LinearRBFActionModel(ActionModel):
 
 
 class DeepNNActionModel(ActionModel):
-    def __init__(self, hidden_nodes: Tuple[int, int], replay_buffer_size: int) -> None:
+    def __init__(
+        self,
+        hidden_nodes: Tuple[int, int],
+        batch_size: int,
+        replay_buffer_size_in_batches: int,
+    ) -> None:
         self._model = torch.nn.Sequential(
             torch.nn.Linear(5, hidden_nodes[0]),
             torch.nn.Tanh(),
@@ -65,7 +71,8 @@ class DeepNNActionModel(ActionModel):
         )
         self._loss = torch.nn.MSELoss()
         self._optimizer = torch.optim.Adam(params=self._model.parameters())
-        self._replay_buffer_size = replay_buffer_size
+        self._replay_buffer_size = batch_size * replay_buffer_size_in_batches
+        self._batch_size = batch_size
         self._replay_buffer_input = []
         self._replay_buffer_target = []
 
@@ -85,9 +92,12 @@ class DeepNNActionModel(ActionModel):
     def _train(self) -> None:
         input = torch.tensor(np.array(self._replay_buffer_input)).float()
         target = torch.tensor(np.array(self._replay_buffer_target)).float()
-        self._optimizer.zero_grad()
-        self._loss(self._model(input), target).backward()
-        self._optimizer.step()
+        dataset = TensorDataset(input, target)
+        loader = DataLoader(dataset, batch_size=self._batch_size, shuffle=True)
+        for X, y in loader:
+            self._optimizer.zero_grad()
+            self._loss(self._model(X), y).backward()
+            self._optimizer.step()
 
     def _input(self, observation: np.ndarray, action: int) -> torch.Tensor:
         return torch.tensor(np.concatenate((observation, [action]))).float().view(1, -1)
