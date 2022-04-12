@@ -25,7 +25,7 @@ def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool)
 def main() -> None:
     env = gym.make("CartPole-v1")
     agent = Agent(
-        model=DeepNNActionModel(hidden_nodes=(32, 16)),
+        model=DeepNNActionModel(hidden_nodes=(32, 16), replay_buffer_size=1),
         discount_rate=0.9,
         epsilon=0.1,
     )

@@ -55,10 +55,7 @@ class LinearRBFActionModel(ActionModel):
 
 
 class DeepNNActionModel(ActionModel):
-    def __init__(
-        self,
-        hidden_nodes: Tuple[int, int],
-    ) -> None:
+    def __init__(self, hidden_nodes: Tuple[int, int], replay_buffer_size: int) -> None:
         self._model = torch.nn.Sequential(
             torch.nn.Linear(5, hidden_nodes[0]),
             torch.nn.Tanh(),
@@ -68,26 +65,29 @@ class DeepNNActionModel(ActionModel):
         )
         self._loss = torch.nn.MSELoss()
         self._optimizer = torch.optim.Adam(params=self._model.parameters())
+        self._replay_buffer_size = replay_buffer_size
+        self._replay_buffer_input = []
+        self._replay_buffer_target = []
 
+    @torch.no_grad()
     def predict(self, observation: np.ndarray, action: int) -> float:
         return self._model(self._input(observation, action)).detach().numpy()
 
     def update(self, observation: np.ndarray, action: int, target: float) -> None:
+        if len(self._replay_buffer_input) < self._replay_buffer_size:
+            self._replay_buffer_input.append(np.concatenate((observation, [action])))
+            self._replay_buffer_target.append([target])
+        else:
+            self._train()
+            self._replay_buffer_input = []
+            self._replay_buffer_target = []
+
+    def _train(self) -> None:
+        input = torch.tensor(np.array(self._replay_buffer_input)).float()
+        target = torch.tensor(np.array(self._replay_buffer_target)).float()
         self._optimizer.zero_grad()
-        self._loss(
-            self._model(self._input(observation, action)), self._target(target)
-        ).backward()
+        self._loss(self._model(input), target).backward()
         self._optimizer.step()
 
     def _input(self, observation: np.ndarray, action: int) -> torch.Tensor:
-        return (
-            torch.tensor(
-                np.concatenate((observation, [action])),
-                requires_grad=True,
-            )
-            .float()
-            .view(1, -1)
-        )
-
-    def _target(self, value: float) -> torch.Tensor:
-        return torch.tensor([value]).float().view(1, 1)
+        return torch.tensor(np.concatenate((observation, [action]))).float().view(1, -1)
