@@ -85,7 +85,7 @@ class LinearRBFAgent(Agent):
         return np.array([value])
 
 
-class DeepNNLinearRBFAgent(Agent):
+class DeepQAgent(Agent):
     def __init__(
         self,
         hidden_nodes: Tuple[int, int],
@@ -133,20 +133,19 @@ class DeepNNLinearRBFAgent(Agent):
             Q_1 = self._predict(new_observation, 1)
             maxQ = np.max([Q_0, Q_1])
             target = reward + self._discount_rate * maxQ
-        self._update(observation, action, target)
-
-    @torch.no_grad()
-    def _predict(self, observation: np.ndarray, action: int) -> float:
-        return self._model(self._input(observation, action)).detach().numpy()
-
-    def _update(self, observation: np.ndarray, action: int, target: float) -> None:
-        if len(self._replay_buffer_input) < self._replay_buffer_size:
-            self._replay_buffer_input.append(np.concatenate((observation, [action])))
-            self._replay_buffer_target.append([target])
-        else:
+        self._replay_buffer_input.append(np.concatenate((observation, [action])))
+        self._replay_buffer_target.append([target])
+        if len(self._replay_buffer_input) >= self._replay_buffer_size:
             self._train()
             self._replay_buffer_input = []
             self._replay_buffer_target = []
+
+    @torch.no_grad()
+    def _predict(self, observation: np.ndarray, action: int) -> float:
+        input = (
+            torch.tensor(np.concatenate((observation, [action]))).float().view(1, -1)
+        )
+        return self._model(input).detach().numpy()
 
     def _train(self) -> None:
         input = torch.tensor(np.array(self._replay_buffer_input)).float()
@@ -157,6 +156,3 @@ class DeepNNLinearRBFAgent(Agent):
             self._optimizer.zero_grad()
             self._loss(self._model(X), y).backward()
             self._optimizer.step()
-
-    def _input(self, observation: np.ndarray, action: int) -> torch.Tensor:
-        return torch.tensor(np.concatenate((observation, [action]))).float().view(1, -1)

@@ -2,7 +2,7 @@ import gym
 import numpy as np
 from tqdm import trange
 
-from agent import Agent, DeepNNLinearRBFAgent, LinearRBFAgent
+from agent import Agent, DeepQAgent, LinearRBFAgent
 
 
 def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool) -> int:
@@ -23,7 +23,7 @@ def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool)
 
 def main() -> None:
     env = gym.make("CartPole-v1")
-    agent = DeepNNLinearRBFAgent(
+    agent = DeepQAgent(
         hidden_nodes=(32, 16),
         batch_size=16,
         replay_buffer_size_in_batches=4,
