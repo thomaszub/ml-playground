@@ -91,8 +91,8 @@ class DeepQAgent(Agent):
         self,
         hidden_nodes: Tuple[int, int],
         batch_size: int,
-        replay_buffer_size_in_batches: int,
-        update_target_after_num_buffers: int,
+        train_after_num_episodes: int,
+        update_target_after_trainings: int,
         discount_rate: float,
         epsilon: float,
     ):
@@ -107,9 +107,10 @@ class DeepQAgent(Agent):
         self._target_model = deepcopy(self._model)
         self._loss = torch.nn.MSELoss()
         self._optimizer = torch.optim.Adam(params=self._model.parameters())
-        self._replay_buffer_size = batch_size * replay_buffer_size_in_batches
         self._batch_size = batch_size
-        self._update_target_after_num_buffers = update_target_after_num_buffers
+        self._train_after_num_episodes = train_after_num_episodes
+        self._update_target_after_trainings = update_target_after_trainings
+        self._episodes = 0
         self._trainings = 0
         self._replay_buffer_input = []
         self._replay_buffer_target = []
@@ -141,12 +142,15 @@ class DeepQAgent(Agent):
             target = reward + self._discount_rate * maxQ
         self._replay_buffer_input.append(np.concatenate((observation, [action])))
         self._replay_buffer_target.append([target])
-        if len(self._replay_buffer_input) >= self._replay_buffer_size:
+        if done:
+            self._episodes += 1
+        if self._episodes >= self._train_after_num_episodes:
+            self._episodes = 0
             self._trainings += 1
             self._train()
             self._replay_buffer_input = []
             self._replay_buffer_target = []
-        if self._trainings >= self._update_target_after_num_buffers:
+        if self._trainings >= self._update_target_after_trainings:
             self._trainings = 0
             self._target_model = deepcopy(self._model)
 
