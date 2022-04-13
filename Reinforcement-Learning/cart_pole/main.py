@@ -27,6 +27,7 @@ def main() -> None:
         hidden_nodes=(32, 16),
         batch_size=16,
         replay_buffer_size_in_batches=4,
+        update_target_after_num_buffers=8,
         discount_rate=0.9,
         epsilon=0.1,
     )
@@ -39,7 +40,7 @@ def main() -> None:
     #    epsilon=0.1,
     # )
 
-    with trange(0, 2000, desc="Iteration") as titer:
+    with trange(0, 5000, desc="Iteration") as titer:
         for _ in titer:
             reward = play(env, agent, False, True)
             titer.set_postfix(reward=reward)

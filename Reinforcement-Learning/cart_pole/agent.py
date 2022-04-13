@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Tuple
 
 import gym
@@ -91,20 +92,25 @@ class DeepQAgent(Agent):
         hidden_nodes: Tuple[int, int],
         batch_size: int,
         replay_buffer_size_in_batches: int,
+        update_target_after_num_buffers: int,
         discount_rate: float,
         epsilon: float,
     ):
         self._model = torch.nn.Sequential(
             torch.nn.Linear(5, hidden_nodes[0]),
-            torch.nn.Tanh(),
+            torch.nn.ReLU(),
             torch.nn.Linear(hidden_nodes[0], hidden_nodes[1]),
             torch.nn.ReLU(),
             torch.nn.Linear(hidden_nodes[1], 1),
+            torch.nn.ReLU(),
         )
+        self._target_model = deepcopy(self._model)
         self._loss = torch.nn.MSELoss()
         self._optimizer = torch.optim.Adam(params=self._model.parameters())
         self._replay_buffer_size = batch_size * replay_buffer_size_in_batches
         self._batch_size = batch_size
+        self._update_target_after_num_buffers = update_target_after_num_buffers
+        self._trainings = 0
         self._replay_buffer_input = []
         self._replay_buffer_target = []
         self._discount_rate = discount_rate
@@ -114,8 +120,8 @@ class DeepQAgent(Agent):
         if eps_greedy and np.random.random() < self._espsilon:
             return np.random.choice([0, 1], p=[0.5, 0.5])
         else:
-            Q_0 = self._predict(observation, 0)
-            Q_1 = self._predict(observation, 1)
+            Q_0 = self._predict(self._model, observation, 0)
+            Q_1 = self._predict(self._model, observation, 1)
             return np.argmax([Q_0, Q_1])
 
     def train(
@@ -129,23 +135,29 @@ class DeepQAgent(Agent):
         if done:
             target = reward
         else:
-            Q_0 = self._predict(new_observation, 0)
-            Q_1 = self._predict(new_observation, 1)
+            Q_0 = self._predict(self._target_model, new_observation, 0)
+            Q_1 = self._predict(self._target_model, new_observation, 1)
             maxQ = np.max([Q_0, Q_1])
             target = reward + self._discount_rate * maxQ
         self._replay_buffer_input.append(np.concatenate((observation, [action])))
         self._replay_buffer_target.append([target])
         if len(self._replay_buffer_input) >= self._replay_buffer_size:
+            self._trainings += 1
             self._train()
             self._replay_buffer_input = []
             self._replay_buffer_target = []
+        if self._trainings >= self._update_target_after_num_buffers:
+            self._trainings = 0
+            self._target_model = deepcopy(self._model)
 
     @torch.no_grad()
-    def _predict(self, observation: np.ndarray, action: int) -> float:
+    def _predict(
+        self, model: torch.nn.Module, observation: np.ndarray, action: int
+    ) -> float:
         input = (
             torch.tensor(np.concatenate((observation, [action]))).float().view(1, -1)
         )
-        return self._model(input).detach().numpy()
+        return model(input).detach().numpy()
 
     def _train(self) -> None:
         input = torch.tensor(np.array(self._replay_buffer_input)).float()
