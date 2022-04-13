@@ -23,12 +23,13 @@ def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool)
 
 def main() -> None:
     env = gym.make("CartPole-v1")
+    discount_rate = 0.99
     agent = DeepQAgent(
         hidden_nodes=(32, 32),
         batch_size=32,
         train_after_num_episodes=8,
         update_target_after_trainings=8,
-        discount_rate=0.9,
+        discount_rate=discount_rate,
         epsilon=0.1,
     )
     # agent = LinearRBFAgent(
@@ -36,7 +37,7 @@ def main() -> None:
     #    action_space=env.action_space,
     #    n_components=32,
     #    learning_rate=0.05,
-    #    discount_rate=0.9,
+    #    discount_rate=discount_rate,
     #    epsilon=0.1,
     # )
 
