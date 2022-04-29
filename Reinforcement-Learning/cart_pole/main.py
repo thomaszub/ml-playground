@@ -13,7 +13,7 @@ def play(env: gym.Env[np.ndarray, int], agent: Agent, render: bool, train: bool)
         if render:
             env.render()
         action = agent.sample(observation, train)
-        new_observation, reward, done, info = env.step(action)
+        new_observation, reward, done, _ = env.step(action)
         sum_reward += reward
         if train:
             agent.train(observation, action, reward, new_observation, done)
