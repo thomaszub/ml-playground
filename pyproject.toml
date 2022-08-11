@@ -15,7 +15,7 @@ gym = {version = "^0.25.1", extras = ["classic_control", "box2d"]}
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.4.4"
-matplotlib = "^3.5.2"
+matplotlib = "^3.5.3"
 black = "22.6.0"
 ipywidgets = "^7.7.1"
 flake8 = "^5.0.4"
