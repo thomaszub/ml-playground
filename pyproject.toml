@@ -17,7 +17,7 @@ gym = {version = "^0.25.1", extras = ["classic_control", "box2d"]}
 jupyterlab = "^3.4.5"
 matplotlib = "^3.5.3"
 black = "22.6.0"
-ipywidgets = "^7.7.1"
+ipywidgets = "^8.0.1"
 flake8 = "^5.0.4"
 
 [build-system]
