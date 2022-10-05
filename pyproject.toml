@@ -11,7 +11,7 @@ torchvision = "0.13.0"
 pandas = "^1.5.0"
 scikit-learn = "^1.1"
 tqdm = "^4.64.1"
-gym = {version = "^0.26.1", extras = ["classic_control", "box2d"]}
+gym = {version = "^0.26.2", extras = ["classic_control", "box2d"]}
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.4.7"
