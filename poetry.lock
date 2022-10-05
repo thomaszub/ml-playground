@@ -333,7 +333,7 @@ woff = ["brotli (>=1.0.1)", "brotlicffi (>=0.8.0)", "zopfli (>=0.1.4)"]
 
 [[package]]
 name = "gym"
-version = "0.26.1"
+version = "0.26.2"
 description = "Gym: A universal API for reinforcement learning environments"
 category = "main"
 optional = false
@@ -350,14 +350,14 @@ swig = {version = ">=4.0.0,<5.0.0", optional = true, markers = "extra == \"box2d
 
 [package.extras]
 accept-rom-license = ["autorom[accept-rom-license] (>=0.4.2,<0.5.0)"]
-all = ["ale-py (>=0.8.0,<0.9.0)", "box2d-py (==2.3.5)", "imageio (>=2.14.1)", "lz4 (>=3.1.0)", "matplotlib (>=3.0)", "moviepy (>=1.0.0)", "mujoco (==2.2.0)", "mujoco_py (>=2.1,<2.2)", "opencv-python (>=3.0)", "pygame (==2.1.0)", "pytest (==7.0.1)", "swig (>=4.0.0,<5.0.0)"]
+all = ["ale-py (>=0.8.0,<0.9.0)", "box2d-py (==2.3.5)", "imageio (>=2.14.1)", "lz4 (>=3.1.0)", "matplotlib (>=3.0)", "moviepy (>=1.0.0)", "mujoco (==2.2)", "mujoco_py (>=2.1,<2.2)", "opencv-python (>=3.0)", "pygame (==2.1.0)", "pytest (==7.0.1)", "swig (>=4.0.0,<5.0.0)"]
 atari = ["ale-py (>=0.8.0,<0.9.0)"]
 box2d = ["box2d-py (==2.3.5)", "pygame (==2.1.0)", "swig (>=4.0.0,<5.0.0)"]
 classic_control = ["pygame (==2.1.0)"]
-mujoco = ["imageio (>=2.14.1)", "mujoco (==2.2.0)"]
+mujoco = ["imageio (>=2.14.1)", "mujoco (==2.2)"]
 mujoco_py = ["mujoco_py (>=2.1,<2.2)"]
 other = ["lz4 (>=3.1.0)", "matplotlib (>=3.0)", "moviepy (>=1.0.0)", "opencv-python (>=3.0)"]
-testing = ["box2d-py (==2.3.5)", "imageio (>=2.14.1)", "lz4 (>=3.1.0)", "matplotlib (>=3.0)", "moviepy (>=1.0.0)", "mujoco (==2.2.0)", "mujoco_py (>=2.1,<2.2)", "opencv-python (>=3.0)", "pygame (==2.1.0)", "pytest (==7.0.1)", "swig (>=4.0.0,<5.0.0)"]
+testing = ["box2d-py (==2.3.5)", "imageio (>=2.14.1)", "lz4 (>=3.1.0)", "matplotlib (>=3.0)", "moviepy (>=1.0.0)", "mujoco (==2.2)", "mujoco_py (>=2.1,<2.2)", "opencv-python (>=3.0)", "pygame (==2.1.0)", "pytest (==7.0.1)", "swig (>=4.0.0,<5.0.0)"]
 toy_text = ["pygame (==2.1.0)"]
 
 [[package]]
@@ -1524,7 +1524,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "25b095a9ea34d2153183b96b241bd4f8fa57a224cea8431217f3ba886d224f10"
+content-hash = "24e31c7c7eccaea92c72de07382ff27efa9059e900267b153678da58d361c793"
 
 [metadata.files]
 anyio = [
@@ -1828,7 +1828,7 @@ fonttools = [
     {file = "fonttools-4.34.4.zip", hash = "sha256:9a1c52488045cd6c6491fd07711a380f932466e317cb8e016fc4e99dc7eac2f0"},
 ]
 gym = [
-    {file = "gym-0.26.1.tar.gz", hash = "sha256:a632c3fcee0b4fcb8d110c127fe0e4a195195cf0a3707da4578564afbed96512"},
+    {file = "gym-0.26.2.tar.gz", hash = "sha256:e0d882f4b54f0c65f203104c24ab8a38b039f1289986803c7d02cdbe214fbcc4"},
 ]
 gym-notices = [
     {file = "gym-notices-0.0.7.tar.gz", hash = "sha256:254b667412dbe205135213595c963cd830668382ce57b68a0c282a238eeb35b9"},
