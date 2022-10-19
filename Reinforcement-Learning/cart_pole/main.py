@@ -8,6 +8,10 @@ Env = gym.Env[np.ndarray, int]
 
 env_id = "CartPole-v1"
 
+max_reward = 500
+
+max_train_iter = 5000
+
 
 def play(agent: Agent, render: bool, train: bool) -> int:
     if render:
@@ -40,10 +44,12 @@ def main() -> None:
         epsilon=0.1,
     )
 
-    with trange(0, 5000, desc="Iteration") as titer:
+    with trange(0, max_train_iter, desc="Iteration") as titer:
         for _ in titer:
             reward = play(agent, False, True)
             titer.set_postfix(reward=reward)
+            if reward >= max_reward:
+                break
 
     reward = play(agent, True, False)
     print(f"Reward: {reward}")
