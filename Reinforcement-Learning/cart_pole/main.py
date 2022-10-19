@@ -10,12 +10,12 @@ Env = gym.Env[np.ndarray, int]
 def play(env: Env, agent: Agent, render: bool, train: bool) -> int:
     sum_reward = 0
     done = False
-    state = env.reset()
+    state, _ = env.reset()
     while not done:
         if render:
             env.render()
         action = agent.sample(state, train)
-        new_state, reward, done, _ = env.step(action)
+        new_state, reward, done, _, _ = env.step(action)
         sum_reward += reward
         if train:
             agent.train(state, action, reward, new_state, done)
@@ -24,7 +24,7 @@ def play(env: Env, agent: Agent, render: bool, train: bool) -> int:
 
 
 def main() -> None:
-    env = gym.make("CartPole-v1")
+    env = gym.make("CartPole-v1", render_mode="rgb_array")
     discount_rate = 0.99
     agent = DeepQAgent(
         hidden_nodes=(32, 32),
