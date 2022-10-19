@@ -6,8 +6,14 @@ from agent import Agent, DeepQAgent
 
 Env = gym.Env[np.ndarray, int]
 
+env_id = "CartPole-v1"
 
-def play(env: Env, agent: Agent, render: bool, train: bool) -> int:
+
+def play(agent: Agent, render: bool, train: bool) -> int:
+    if render:
+        env = gym.make(env_id, render_mode="human")
+    else:
+        env = gym.make(env_id, render_mode=None)
     sum_reward = 0
     done = False
     state, _ = env.reset()
@@ -20,11 +26,11 @@ def play(env: Env, agent: Agent, render: bool, train: bool) -> int:
         if train:
             agent.train(state, action, reward, new_state, done)
         state = new_state
+    env.close()
     return sum_reward
 
 
 def main() -> None:
-    env = gym.make("CartPole-v1", render_mode="rgb_array")
     discount_rate = 0.99
     agent = DeepQAgent(
         hidden_nodes=(32, 32),
@@ -37,13 +43,11 @@ def main() -> None:
 
     with trange(0, 5000, desc="Iteration") as titer:
         for _ in titer:
-            reward = play(env, agent, False, True)
+            reward = play(agent, False, True)
             titer.set_postfix(reward=reward)
 
-    reward = play(env, agent, True, False)
+    reward = play(agent, True, False)
     print(f"Reward: {reward}")
-
-    env.close()
 
 
 if __name__ == "__main__":
