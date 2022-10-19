@@ -15,16 +15,15 @@ def play(agent: Agent, render: bool, train: bool) -> int:
     else:
         env = gym.make(env_id, render_mode=None)
     sum_reward = 0
-    done = False
+    terminated = False
+    truncated = False
     state, _ = env.reset()
-    while not done:
-        if render:
-            env.render()
+    while not (terminated or truncated):
         action = agent.sample(state, train)
-        new_state, reward, done, _, _ = env.step(action)
+        new_state, reward, terminated, truncated, _ = env.step(action)
         sum_reward += reward
         if train:
-            agent.train(state, action, reward, new_state, done)
+            agent.train(state, action, reward, new_state, terminated or truncated)
         state = new_state
     env.close()
     return sum_reward
