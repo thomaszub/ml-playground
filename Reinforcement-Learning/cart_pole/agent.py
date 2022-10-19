@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Tuple
+from typing import Protocol, Tuple
 
 import gym
 import numpy as np
@@ -12,12 +11,10 @@ from sklearn.linear_model import SGDRegressor
 from torch.utils.data import DataLoader, TensorDataset
 
 
-class Agent(ABC):
-    @abstractmethod
+class Agent(Protocol):
     def sample(self, state: np.ndarray, eps_greedy: bool) -> int:
-        pass
+        ...
 
-    @abstractmethod
     def train(
         self,
         state: np.ndarray,
@@ -26,7 +23,7 @@ class Agent(ABC):
         new_state: np.ndarray,
         done: bool,
     ) -> None:
-        pass
+        ...
 
 
 class LinearRBFAgent(Agent):
