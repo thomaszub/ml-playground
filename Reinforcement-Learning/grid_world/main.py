@@ -1,9 +1,7 @@
-from typing import Dict
 from tqdm import trange
 
 import game
 from environment.world import Field, FieldType, GridWorld, Position
-from policy import Policy
 from util import print_state_values, print_action_values
 from agent import QAgent
 from state_value import calc_state_values_by_dict

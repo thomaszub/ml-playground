@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import Field
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Tuple
 
 import numpy as np
 
@@ -27,7 +27,7 @@ class Policy(ABC):
 class EpsilonGreedyPolicy(Policy):
     def __init__(self, world: GridWorld, epsilon: float, policy: Policy = None) -> None:
         super().__init__(world)
-        if epsilon < 1.0 and policy == None:
+        if epsilon < 1.0 and policy is None:
             raise ValueError("policy can not be None if epsilon is smaller 1.0")
         self._epsilon = epsilon
         self._policy = policy
@@ -38,7 +38,7 @@ class EpsilonGreedyPolicy(Policy):
 
     def func(self, field: Field) -> Callable[[MoveAction], float]:
         eps = self._epsilon
-        if self._policy == None:
+        if self._policy is None:
             return lambda a: self._random_func(field)(a)
         else:
             return lambda a: eps * self._random_func(field)(a) + (
