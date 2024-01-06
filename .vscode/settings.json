@@ -1,11 +1,8 @@
 {
-    "python.formatting.provider": "black",
-    "python.linting.flake8Enabled": true,
+    "notebook.formatOnSave.enabled": true,
     "[python]": {
-        "gitlens.codeLens.symbolScopes": [
-            "!Module"
-        ],
-        "editor.wordBasedSuggestions": false,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.wordBasedSuggestions": "off",
         "editor.formatOnSave": true,
         "editor.tabSize": 4
     }
