@@ -45,7 +45,7 @@ class GridWorld:
     def move(self, field: Field, action: MoveAction) -> Tuple[Field, float]:
         new_position = action.apply(field.position)
         new_field_type = self._fields.get(new_position)
-        if new_field_type != None:
+        if new_field_type is not None:
             new_field = Field(new_position, new_field_type)
             if new_field_type == FieldType.FREE:
                 return new_field, -0.1
@@ -57,7 +57,7 @@ class GridWorld:
 
     def _is_blocked(self, position: Position) -> bool:
         field = self._fields.get(position)
-        if field != None:
+        if field is not None:
             return field == FieldType.BLOCKED
         else:
             return True

@@ -18,7 +18,7 @@ def play(
     while not game_ended:
         action = action_callback(field)
         new_field, reward = world.move(field, action)
-        if new_state_callback != None:
+        if new_state_callback is not None:
             new_state_callback(field, reward, new_field)
         trajectorie.append((copy(field), action, reward, new_field))
         field = new_field

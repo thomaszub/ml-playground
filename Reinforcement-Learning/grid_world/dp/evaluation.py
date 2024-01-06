@@ -62,8 +62,8 @@ def calc_action_values(
         possible_actions = world.possible_actions(field)
         for action in possible_actions:
             new_state, reward = world.move(field, action)
-            action_values[
-                (field, action)
-            ] = reward + discount_factor * state_values.get(new_state, 0.0)
+            action_values[(field, action)] = (
+                reward + discount_factor * state_values.get(new_state, 0.0)
+            )
 
     return action_values

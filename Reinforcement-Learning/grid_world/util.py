@@ -13,6 +13,6 @@ def print_action_values(action_values: Dict[Tuple[Field, Action], float]) -> Non
 
 
 def state_values_dict_to_function(
-    state_values: Dict[Field, float]
+    state_values: Dict[Field, float],
 ) -> Callable[[Field], float]:
     return lambda s: state_values[s]
