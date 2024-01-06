@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Protocol, Tuple
 
-import gym
+import gymnasium as gym
 import numpy as np
 import torch
 from torch.nn import Module, Sequential, MSELoss, Linear, ReLU

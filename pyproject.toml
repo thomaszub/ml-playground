@@ -11,7 +11,7 @@ torchvision = "0.16.2"
 pandas = "2.1.4"
 scikit-learn = "1.3.2"
 tqdm = "4.66.1"
-gym = {version = "0.26.2", extras = ["classic_control"]}
+gymnasium = {version = "0.29.1", extras = ["classic_control"]}
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "4.0.10"
