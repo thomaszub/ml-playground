@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Protocol
+from typing import Protocol, List
 
 import numpy as np
 import torch
@@ -29,23 +29,22 @@ class DeepQAgent(Agent):
     def __init__(
         self,
         discount_rate: float,
-        epsilon_decay: float,
+        epsilon: float,
         batch_size: int,
         train_after_steps: int,
         update_target_after_num_trainigs: int,
     ):
         self._discount_rate = discount_rate
-        self._epsilon_decay = epsilon_decay
-        self._epsilon = 1.0
+        self._epsilon = epsilon
         self._train_mode = False
         self._replay_buffer_input = []
         self._replay_buffer_target = []
         self._model = torch.nn.Sequential(
-            torch.nn.Linear(2, 32),
+            torch.nn.Linear(4, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
-            torch.nn.Linear(32, 3),
+            torch.nn.Linear(32, 1),
         )
         self._target_model = None
         self._loss = torch.nn.MSELoss()
@@ -61,8 +60,17 @@ class DeepQAgent(Agent):
         if self._train_mode and np.random.random() < self._epsilon:
             return np.random.choice([0, 1, 2])
 
-        Q = self._predict(self._model, state)
-        return torch.argmax(Q).detach().numpy()
+        Q_0 = self._predict(self._model, state, self._action_int_to_array(0))
+        Q_1 = self._predict(self._model, state, self._action_int_to_array(1))
+        Q_2 = self._predict(self._model, state, self._action_int_to_array(2))
+        return np.argmax([Q_0, Q_1, Q_2])
+
+    def _action_int_to_array(self, action: int) -> np.ndarray:
+        if action == 1:
+            return np.array([0, 0])
+        if action == 0:
+            return np.array([1, 0])
+        return np.array([0, 1])
 
     def train_mode(self, active: bool) -> None:
         self._train_mode = active
@@ -92,10 +100,19 @@ class DeepQAgent(Agent):
             target = reward + 100.0 * self._height_reached
             self._height_reached = 0.0
         else:
-            Q = self._predict(self._target_model, new_state)
-            max_Q = torch.max(Q)
+            Q_0 = self._predict(
+                self._target_model, new_state, self._action_int_to_array(0)
+            )
+            Q_1 = self._predict(
+                self._target_model, new_state, self._action_int_to_array(1)
+            )
+            Q_2 = self._predict(
+                self._target_model, new_state, self._action_int_to_array(2)
+            )
+            max_Q = np.max([Q_0, Q_1, Q_2])
             target = reward + self._discount_rate * max_Q
-        self._replay_buffer_input.append(self._state_action(state, action))
+        action_array = self._action_int_to_array(action)
+        self._replay_buffer_input.append(np.concatenate((state, action_array)))
         self._replay_buffer_target.append([target])
 
         self._steps += 1
@@ -120,6 +137,8 @@ class DeepQAgent(Agent):
             self._loss(self._model(X), y).backward()
             self._optimizer.step()
 
-    def _predict(self, model: torch.nn.Module, state: np.ndarray) -> np.ndarray:
-        input = torch.tensor(state).float().view(1, -1)
+    @torch.no_grad()
+    def _predict(self, model: torch.nn.Module, state: np.ndarray, action: List[int]):
+        state_action = np.concatenate((state, action))
+        input = torch.tensor(state_action).float().view(1, -1)
         return model(input).detach().numpy()

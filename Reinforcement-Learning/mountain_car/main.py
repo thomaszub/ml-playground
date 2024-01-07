@@ -34,10 +34,10 @@ def play(agent: Agent, render: bool, train: bool) -> int:
 def main() -> None:
     agent = DeepQAgent(
         discount_rate=0.99,
-        epsilon_decay=0.995,
-        batch_size=64,
+        epsilon=0.1,
+        batch_size=32,
         train_after_steps=4096,
-        update_target_after_num_trainigs=16,
+        update_target_after_num_trainigs=8,
     )
 
     with trange(0, max_train_iter, desc="Iteration") as titer:
